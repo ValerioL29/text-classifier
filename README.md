@@ -8,11 +8,12 @@
 Text-Classifier
 ├─gbdt_classifier
 ├─naive_bayes
+├─preprocesssvm_classifier
 ├─preprocess
-└─svm_classifier
-└─main.py
+├─resources
+├─.gitignore
+├─main.py
 └─README.md
-└─.gitignore
 ```
 
 #### 安装教程
@@ -43,7 +44,7 @@ Text-Classifier
 
 ##### 实验要求
 
-* 文本类别数：10类； 
+* 文本类别数：10类；
 * 训练集文档数：>=50000篇；每类平均5000篇。 
 * 测试集文档数：>=50000篇；每类平均5000篇。 
 * 分组完成实验，组员数量<=3，个人实现可以获得实验加分。 
