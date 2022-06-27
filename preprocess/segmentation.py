@@ -1,3 +1,5 @@
+import os
+
 import jieba
 
 
@@ -14,36 +16,32 @@ def seg_sentence(sentence):
     stopwords = stop_words_list('../resources/stop_words_ch.txt')  # 分词词库，这里选择baidu词库
     output_str = ''
     for word in sentence_segmented:
-        if word not in stopwords and word != ' ':
+        if word not in stopwords:
             output_str += word
             output_str += "\t"
     return output_str
 
 
-def transform():
-    dataset = [
-        '../resources/1_caijing.txt',
-        '../resources/2_gupiao.txt',
-        '../resources/3_jiaoyu.txt',
-        '../resources/4_keji.txt',
-        '../resources/5_shehui.txt',
-        '../resources/6_shishang.txt',
-        '../resources/7_shizheng.txt',
-        '../resources/8_tiyu.txt',
-        '../resources/9_youxi.txt',
-        '../resources/10_yule.txt'
-    ]
-
-    for i in range(10):
-        print("Starting Segmentation for dataset: {}\n".format(i + 1))
+def segmentation_transform(data_type):
+    i = 1
+    src_path = '../resources/' + data_type
+    for document in os.listdir(src_path):
+        target = document.split('.')[0]
+        print("Starting Segmentation for {} set: {}-{}\n".format(data_type, i, document))
         output = ''
-        with open(dataset[i], 'r+', encoding='utf-8') as file_obj:
+        with open('{}/{}'.format(src_path, document), 'r+', encoding='utf-8') as file_obj:
             sentences = file_obj.read().split('\n')
             for sentence in sentences:
                 res = seg_sentence(sentence)
-                output += res
-                output += '\n'
+                if '记者' not in res:
+                    output += res
+                    output += '\n'
 
-        file_name = 'output/{}.txt'.format(i + 1)
+        file_name = '{}/{}.txt'.format(data_type, target)
         with open(file_name, 'w+', encoding='utf-8') as file_obj:
             file_obj.write(output)
+        i += 1
+
+
+# segmentation_transform('train')
+segmentation_transform('test')
