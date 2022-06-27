@@ -42,6 +42,7 @@ def transform():
             for sentence in sentences:
                 res = seg_sentence(sentence)
                 output += res
+                output += '\n'
 
         file_name = 'output/{}.txt'.format(i + 1)
         with open(file_name, 'w+', encoding='utf-8') as file_obj:
