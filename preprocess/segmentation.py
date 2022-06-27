@@ -1,5 +1,4 @@
 import os
-
 import jieba
 
 
@@ -43,5 +42,5 @@ def segmentation_transform(data_type):
         i += 1
 
 
-# segmentation_transform('train')
+segmentation_transform('train')
 segmentation_transform('test')
