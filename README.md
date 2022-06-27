@@ -6,9 +6,8 @@
 #### 软件架构
 ```
 Text-Classifier
-├─gbdt_classifier
 ├─naive_bayes
-├─preprocesssvm_classifier
+├─svm_classifier
 ├─preprocess
 ├─resources
 ├─.gitignore
