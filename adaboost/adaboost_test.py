@@ -87,7 +87,7 @@ def adaClassify(datToClass, classifierArr):  # 预测分类
     aggClassEst = mat(zeros((m, 1)))
     for i in range(len(classifierArr)):
         classEst = stumpClassify(dataMat, classifierArr[i]['dim'], classifierArr[i]['thresh'],
-                                 classifierArr[i]['ineq'])  # 可以对比文章开头的图，其实就是那个公式
+                                 classifierArr[i]['ineq'])
         aggClassEst += classifierArr[i]['alpha'] * classEst
         print(aggClassEst)
     return sign(aggClassEst)
