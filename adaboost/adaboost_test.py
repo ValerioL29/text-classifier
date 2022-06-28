@@ -2,7 +2,7 @@ from numpy import *
 import matplotlib.pyplot as plt
 import matplotlib
 from matplotlib.font_manager import *
-
+import pickle
 
 def loadDataSet():  # 加载测试数据
     dataMat = mat([[1., 2.1],
@@ -19,6 +19,8 @@ def loadDataSet():  # 加载测试数据
 
 def stumpClassify(dataMat, dimen, threshVal, threshIneq):  # dimen:第dimen列，也就是第几个特征, threshVal:是阈值  threshIneq：标志
     retArray = ones((shape(dataMat)[0], 1))  # 创造一个 样本数×1 维的array数组
+    print(dimen)
+    print(threshVal)
     if threshIneq == 'lt':  # lt表示less than，表示分类方式，对于小于等于阈值的样本点赋值为-1
         retArray[dataMat[:, dimen] <= threshVal] = -1.0
     else:  # 我们确定一个阈值后，有两种分法，一种是小于这个阈值的是正类，大于这个值的是负类，
@@ -28,31 +30,25 @@ def stumpClassify(dataMat, dimen, threshVal, threshIneq):  # dimen:第dimen列�
 
 
 def buildStump(dataArr, classLabels, D):
-    dataMat = mat(dataArr)
-    labelMat = mat(classLabels).T
+    dataMat = dataArr
+    labelMat = array(classLabels).T
     m, n = shape(dataMat)
     numStemp = 10
     bestStump = {}
     bestClassEst = mat(zeros((m, 1)))
     minError = inf  # 无穷
     for i in range(n):  # 遍历特征
-        rangeMin = dataMat[:, i].min()  # 检查到该特征的最小值
-        rangeMax = dataMat[:, i].max()
-        stepSize = (rangeMax - rangeMin) / numStemp  # 寻找阈值的步长是最大减最小除以10,你也可以按自己的意愿设置步长公式
-        for j in range(-1, int(numStemp) + 1):
-            for inequal in ['lt', 'gt']:  # 因为确定一个阈值后，可以有两种分类方式
-                threshVal = (rangeMin + float(j) * stepSize)
-                predictedVals = stumpClassify(dataMat, i, threshVal,
-                                              inequal)  # 确定一个阈值后，计算它的分类结果，predictedVals就是基分类器的预测结果，是一个m×1的array数组
-                errArr = mat(ones((m, 1)))
-                errArr[predictedVals == labelMat] = 0  # 预测值与实际值相同，误差置为0
-                weightedEroor = D.T * errArr  # D就是每个样本点的权值，随着迭代，它会变化，这段代码是误差率的公式
-                if weightedEroor < minError:  # 选出分类误差最小的基分类器
-                    minError = weightedEroor  # 保存分类器的分类误差
-                    bestClassEst = predictedVals.copy()  # 保存分类器分类的结果
-                    bestStump['dim'] = i  # 保存那个分类器的选择的特征
-                    bestStump['thresh'] = threshVal  # 保存分类器选择的阈值
-                    bestStump['ineq'] = inequal  # 保存分类器选择的分类方式
+        predictedVals = stumpClassify(dataMat, i, threshVal,
+                                      inequal)  # 确定一个阈值后，计算它的分类结果，predictedVals就是基分类器的预测结果，是一个m×1的array数组
+        errArr = mat(ones((m, 1)))
+        errArr[predictedVals == labelMat] = 0  # 预测值与实际值相同，误差置为0
+        weightedEroor = D.T * errArr  # D就是每个样本点的权值，随着迭代，它会变化，这段代码是误差率的公式
+        if weightedEroor < minError:  # 选出分类误差最小的基分类器
+            minError = weightedEroor  # 保存分类器的分类误差
+            bestClassEst = predictedVals.copy()  # 保存分类器分类的结果
+            bestStump['dim'] = i  # 保存那个分类器的选择的特征
+            bestStump['thresh'] = threshVal  # 保存分类器选择的阈值
+            bestStump['ineq'] = inequal  # 保存分类器选择的分类方式
     return bestStump, minError, bestClassEst
 
 
@@ -229,10 +225,20 @@ def draw_figure(dataMat, labelList, weakClassArr):  # 画图
 
 
 if __name__ == '__main__':  # 运行函数
+    with open('../preprocess/train/train_bag.pickle', 'rb') as file_obj:
+        train_bunch = pickle.load(file_obj)
+    with open('../preprocess/test/test_bag.pickle', 'rb') as file_obj:
+        test_bunch = pickle.load(file_obj)
+    y_train = train_bunch.label
+    X_train = train_bunch.tfidf_weight_matrices
     dataMat, labelList = loadDataSet()  # 加载数据集
-    weakClassArr, aggClassEst = adaBoostTrainDS(dataMat, labelList)
-    draw_figure(dataMat, labelList, weakClassArr)  # 画图
-    print('weakClassArr', weakClassArr)
-    print('aggClassEst', aggClassEst)
-    classify_result = adaClassify([0.7, 1.7], weakClassArr)  # 预测的分类结果，测试集我们用的是[0.7,1.7]测试集随便选
-    print("结果是:", classify_result)
+    dataMat = array(dataMat)
+    print(dataMat.shape, len(labelList))
+    print(X_train.shape, len(y_train))
+    # weakClassArr, aggClassEst = adaBoostTrainDS(dataMat, labelList)
+    weakClassArr, aggClassEst = adaBoostTrainDS(X_train, y_train)
+    # draw_figure(dataMat, labelList, weakClassArr)  # 画图
+    # print('weakClassArr', weakClassArr)
+    # print('aggClassEst', aggClassEst)
+    # classify_result = adaClassify([0.7, 1.7], weakClassArr)  # 预测的分类结果，测试集我们用的是[0.7,1.7]测试集随便选
+    # print("结果是:", classify_result)
